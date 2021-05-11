@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Vooth</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.png" />
+    <link rel="stylesheet" href="TemplateData/style.css" />
+    <script src="TemplateData/UnityProgress.js"></script>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      var unityInstance = UnityLoader.instantiate(
+        "unityContainer",
+        "Build/Build.json",
+        { onProgress: UnityProgress }
+      );
+    </script>
+  </head>
+  <body>
+    <div class="webgl-content" style="margin: 0px; overflow: visible">
+      <div id="unityContainer"></div>
+    </div>
+
+    <!-- Firebase functionalities start-->
+    <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
+
+    <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>
+
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-database.js"></script>
+
+    <script>
+      // TODO: Replace the following with your app's Firebase project configuration
+
+      var firebaseConfig = {
+        apiKey: "AIzaSyBbTcoUWeX0d5xey_HLOCyWc2woyVHyqx8",
+        authDomain: "vooth-free-roam-analytics-dev.firebaseapp.com",
+        // For databases not in the us-central1 location, databaseURL will be of the
+        // form https://[databaseName].[region].firebasedatabase.app.
+        // For example, https://your-database-123.europe-west1.firebasedatabase.app
+        databaseURL:
+          "https://vooth-free-roam-analytics-dev-default-rtdb.firebaseio.com/",
+        storageBucket: "vooth-free-roam-analytics-dev.appspot.com",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      var uuid = "";
+      var username = "";
+      var userappearance = "";
+      var date = "";
+      var timestamp = "";
+
+      window.onbeforeunload = function () {
+        timestamp = Math.floor(Date.now() / 1000);
+        var dataString =
+          '{"uuid":"' +
+          uuid +
+          '","eventname":"user_exit","username":"' +
+          username +
+          '","userappearance":"' +
+          userappearance +
+          '","date":"' +
+          date +
+          '","timestamp":' +
+          timestamp +
+          "}";
+        writeUserData(dataString);
+      };
+
+      function writeUserData(jsonData) {
+        // Get a reference to the database service
+
+        var dataJson = JSON.parse(jsonData);
+
+        uuid = dataJson.uuid;
+        username = dataJson.username;
+        userappearance = dataJson.userappearance;
+        date = dataJson.date;
+
+        var database = firebase
+          .database()
+          .ref(
+            "users/" +
+              dataJson.username +
+              "_" +
+              dataJson.uuid +
+              "/" +
+              dataJson.eventname
+          );
+        database.set(jsonData);
+      }
+    </script>
+    <!-- Firebase functionalities end-->
+  </body>
+</html>
